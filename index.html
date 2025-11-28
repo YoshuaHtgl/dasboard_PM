@@ -6,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI";
       background: linear-gradient(135deg, #eef2ff, #e0f2fe);
       color: #0f172a;
     }
@@ -20,184 +18,101 @@
       margin: 0 auto;
       padding: 24px 16px 40px;
     }
-    h1 {
-      margin: 0 0 4px;
-      font-size: 1.6rem;
-    }
-    .subtitle {
-      font-size: 0.9rem;
-      color: #64748b;
-      margin-bottom: 18px;
-    }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    .subtitle { font-size: 0.9rem; color: #64748b; margin-bottom: 18px; }
+
     .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 18px;
     }
-    .last-update {
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-    button.refresh-btn {
-      border: none;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: #2563eb;
-      color: white;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .last-update { font-size: 0.85rem; color: #64748b; }
+
+    .refresh-btn {
+      border: none; padding: 8px 14px; border-radius: 999px;
+      background: #2563eb; color: white; font-size: 0.85rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
       box-shadow: 0 2px 6px rgba(37,99,235,0.35);
-    }
-    button.refresh-btn:active {
-      transform: translateY(1px);
-      box-shadow: none;
     }
 
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 16px; margin-bottom: 24px;
     }
     .card {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
-      position: relative;
-      overflow: hidden;
+      background: white; border-radius: 14px; padding: 14px 16px;
+      box-shadow: 0 6px 16px rgba(15,23,42,0.12);
     }
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: auto -40px -40px auto;
-      width: 110px;
-      height: 110px;
-      background: radial-gradient(circle at center,
-                                  rgba(59,130,246,0.16),
-                                  transparent 70%);
-      pointer-events: none;
-    }
-    .card-title {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .card-value {
-      font-size: 2.1rem;
-      font-weight: 700;
-    }
-    .card-badge {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-    .card--fan   .card-value  { color: #0ea5e9; }
-    .card--lampu .card-value  { color: #f97316; }
-    .card--handle .card-value { color: #22c55e; }
-
-    .status-bar {
-      font-size: 0.8rem;
-      color: #64748b;
-    }
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 5px;
-      background: #22c55e;
-    }
+    .card-title { font-size: 0.9rem; color: #6b7280; margin-bottom: 8px; }
+    .card-value { font-size: 2rem; font-weight: bold; }
 
     .error {
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: #fef2f2;
-      color: #b91c1c;
-      font-size: 0.85rem;
-      margin-top: 8px;
-      display: none;
-    }
-
-    @media (max-width: 640px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      h1 {
-        font-size: 1.3rem;
-      }
+      display: none; background: #fee2e2; color: #b91c1c;
+      padding: 10px; border-radius: 8px; margin-bottom: 12px;
     }
   </style>
 </head>
+
 <body>
-  <div class="wrapper">
-    <h1>Dashboard Kerusakan Peralatan</h1>
-    <div class="subtitle">Data diambil dari Google Sheet (Outstanding saja yang dihitung).</div>
+<div class="wrapper">
 
-    <div class="top-bar">
-      <div class="last-update">
-        Terakhir update: <span id="lastUpdate">-</span>
-      </div>
-      <div>
-        <button class="refresh-btn" onclick="loadSummary()">
-          🔄 Refresh
-        </button>
-      </div>
-    </div>
+  <h1>Dashboard Kerusakan Peralatan</h1>
+  <div class="subtitle">Monitoring total kerusakan & perbaikan dari Google Sheet</div>
 
-    <div id="errorBox" class="error"></div>
-
-    <div class="cards">
-      <div class="card card--fan">
-        <div class="card-title">Fan Rusak (Outstanding)</div>
-        <div id="fanCount" class="card-value">0</div>
-        <div class="card-badge">Unit</div>
-      </div>
-
-      <div class="card card--lampu">
-        <div class="card-title">Lampu Rusak (Outstanding)</div>
-        <div id="lampuCount" class="card-value">0</div>
-        <div class="card-badge">Unit</div>
-      </div>
-
-      <div class="card card--handle">
-        <div class="card-title">Handle Rusak (Outstanding)</div>
-        <div id="handleCount" class="card-value">0</div>
-        <div class="card-badge">Unit</div>
-      </div>
-    </div>
-
-    <div class="status-bar">
-      <span class="status-dot"></span>
-      <span>Angka di atas hanya menghitung baris dengan STATUS ≠ "selesai".</span>
-    </div>
+  <div class="top-bar">
+    <div class="last-update">Terakhir update: <span id="lastUpdate">-</span></div>
+    <button class="refresh-btn" onclick="loadSummary()">🔄 Refresh</button>
   </div>
 
+  <div id="errorBox" class="error"></div>
+
+  <!-- 6 Cards -->
+  <div class="cards">
+
+    <!-- FAN -->
+    <div class="card">
+      <div class="card-title">Fan Rusak</div>
+      <div id="fanRusak" class="card-value">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Fan Diperbaiki</div>
+      <div id="fanPerbaiki" class="card-value">0</div>
+    </div>
+
+    <!-- LAMPU -->
+    <div class="card">
+      <div class="card-title">Lampu Rusak</div>
+      <div id="lampuRusak" class="card-value">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Lampu Diperbaiki</div>
+      <div id="lampuPerbaiki" class="card-value">0</div>
+    </div>
+
+    <!-- HANDLE -->
+    <div class="card">
+      <div class="card-title">Handle Rusak</div>
+      <div id="handleRusak" class="card-value">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Handle Diperbaiki</div>
+      <div id="handlePerbaiki" class="card-value">0</div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-  // === URL ORIGINAL TANPA PARAMETER ===
-  let API_URL = "https://script.google.com/macros/s/AKfycbxfrqiQUgw5vDkrnajJEQZammgP734ceX4Dlw-2--N9Ut6fmwX9VCb8Y_xCjBwmxLFQhQ/exec";
 
-  // === AUTO ADD PARAMETER ===
-  if (!API_URL.includes("action=")) {
-    API_URL += (API_URL.includes("?") ? "&" : "?") + "action=getSummary";
-  }
-
-  console.log("API yang dipakai:", API_URL);
+  // === URL API ===
+  const API_URL = "https://script.google.com/macros/s/AKfycbwgev8wlHf9AlfTzVcWUx8WitcKt5iCprvosKpCUkvBxi4p_fgIL1kxpbdn2wUEYsYb8Q/exec?action=summary";
 
   async function loadSummary() {
     const errBox = document.getElementById("errorBox");
     errBox.style.display = "none";
-    errBox.textContent = "";
 
     try {
       const res = await fetch(API_URL);
@@ -205,19 +120,28 @@
 
       const data = await res.json();
 
-      document.getElementById("fanCount").textContent = data.fan ?? 0;
-      document.getElementById("lampuCount").textContent = data.lampu ?? 0;
-      document.getElementById("handleCount").textContent = data.handle ?? 0;
-      document.getElementById("lastUpdate").textContent = data.lastUpdate || "-";
+      // Isi card sesuai JSON
+      document.getElementById("fanRusak").textContent        = data.fan_rusak ?? 0;
+      document.getElementById("fanPerbaiki").textContent     = data.fan_diperbaiki ?? 0;
+
+      document.getElementById("lampuRusak").textContent      = data.lampu_rusak ?? 0;
+      document.getElementById("lampuPerbaiki").textContent   = data.lampu_diperbaiki ?? 0;
+
+      document.getElementById("handleRusak").textContent     = data.handle_rusak ?? 0;
+      document.getElementById("handlePerbaiki").textContent  = data.handle_diperbaiki ?? 0;
+
+      // Update waktu
+      document.getElementById("lastUpdate").textContent = new Date().toLocaleString();
 
     } catch (err) {
-      console.error(err);
-      errBox.textContent = "Gagal memuat data dashboard: " + err.message;
+      errBox.textContent = "Gagal memuat data: " + err.message;
       errBox.style.display = "block";
     }
   }
 
+  // auto load saat halaman dibuka
   document.addEventListener("DOMContentLoaded", loadSummary);
+
 </script>
 </body>
 </html>
