@@ -2,146 +2,215 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard Kerusakan</title>
+  <title>Dashboard Monitoring PM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI";
-      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      font-family: system-ui, -apple-system, Segoe UI;
+      background: #eef2ff;
       color: #0f172a;
     }
     .wrapper {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
+      max-width: 1100px;
+      margin: auto;
+      padding: 25px;
     }
-    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    h1 { font-size: 1.7rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .subtitle { font-size: 0.9rem; color: #64748b; margin-bottom: 18px; }
 
     .top-bar {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 18px;
     }
-    .last-update { font-size: 0.85rem; color: #64748b; }
-
     .refresh-btn {
-      border: none; padding: 8px 14px; border-radius: 999px;
-      background: #2563eb; color: white; font-size: 0.85rem;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-      box-shadow: 0 2px 6px rgba(37,99,235,0.35);
+      border: none; padding: 9px 18px;
+      background: #2563eb; color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display:flex; gap:6px; align-items:center;
+      box-shadow: 0 3px 8px rgba(37,99,235,0.3);
     }
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px; margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
     }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 22px 0 6px;
+      color: #334155;
+      border-left: 4px solid #2563eb;
+      padding-left: 8px;
+    }
+
     .card {
-      background: white; border-radius: 14px; padding: 14px 16px;
-      box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      transition: transform .15s;
     }
-    .card-title { font-size: 0.9rem; color: #6b7280; margin-bottom: 8px; }
-    .card-value { font-size: 2rem; font-weight: bold; }
+    .card:hover { transform: scale(1.05); }
+    .card-title { font-size: 0.9rem; color: #6b7280; }
+    .card-value { font-size: 2.2rem; font-weight: bold; margin-top: 4px; }
 
     .error {
-      display: none; background: #fee2e2; color: #b91c1c;
-      padding: 10px; border-radius: 8px; margin-bottom: 12px;
+      display: none;
+      padding: 12px;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 6px;
+      margin-bottom: 12px;
     }
+	
+		.open-dashboard {
+	  border: none;
+	  padding: 9px 18px;
+	  background: #16a34a;
+	  color: white;
+	  border-radius: 10px;
+	  cursor: pointer;
+	  font-size: 0.9rem;
+	  display:flex;
+	  gap:6px;
+	  align-items:center;
+	  box-shadow: 0 3px 8px rgba(22,163,74,0.3);
+	  transition: .2s;
+	}
+
+.open-dashboard:hover {
+  transform: scale(1.05);
+  background:#138a37;
+}
+
+
   </style>
 </head>
-
 <body>
+
 <div class="wrapper">
 
-  <h1>Dashboard Kerusakan Peralatan</h1>
-  <div class="subtitle">Monitoring total kerusakan & perbaikan dari Google Sheet</div>
+  <h1>📊 Dashboard Monitoring PM</h1>
+  <div class="subtitle">Data otomatis dari Google Apps Script</div>
 
-  <div class="top-bar">
-    <div class="last-update">Terakhir update: <span id="lastUpdate">-</span></div>
-    <button class="refresh-btn" onclick="loadSummary()">🔄 Refresh</button>
-  </div>
+	<div class="top-bar">
+
+	  <!-- 🔥 Tombol baru yang kamu minta -->
+	  <button class="open-dashboard" onclick="window.location.href='https://yoshuahtgl.github.io/form-ReportPM/'">
+		📌 Detail Report
+	  </button>
+
+	  <span>⏱ Terakhir Update: <b id="lastUpdate">-</b></span>
+	  
+	  <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+	</div>
 
   <div id="errorBox" class="error"></div>
 
-  <!-- 6 Cards -->
+  <!-- ============ SECTION: STATUS PER ITEM ============ -->
+  <div class="section-title">Status Peralatan</div>
+
   <div class="cards">
+    <div class="card"><div class="card-title">Lampu Rusak</div><div id="lampuRusak" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Lampu Diperbaiki</div><div id="lampuFix" class="card-value">0</div></div>
 
-    <!-- FAN -->
-    <div class="card">
-      <div class="card-title">Fan Rusak</div>
-      <div id="fanRusak" class="card-value">0</div>
-    </div>
+    <div class="card"><div class="card-title">Fan Rusak</div><div id="fanRusak" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Fan Diperbaiki</div><div id="fanFix" class="card-value">0</div></div>
 
-    <div class="card">
-      <div class="card-title">Fan Diperbaiki</div>
-      <div id="fanPerbaiki" class="card-value">0</div>
-    </div>
-
-    <!-- LAMPU -->
-    <div class="card">
-      <div class="card-title">Lampu Rusak</div>
-      <div id="lampuRusak" class="card-value">0</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Lampu Diperbaiki</div>
-      <div id="lampuPerbaiki" class="card-value">0</div>
-    </div>
-
-    <!-- HANDLE -->
-    <div class="card">
-      <div class="card-title">Handle Rusak</div>
-      <div id="handleRusak" class="card-value">0</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Handle Diperbaiki</div>
-      <div id="handlePerbaiki" class="card-value">0</div>
-    </div>
-
+    <div class="card"><div class="card-title">Handle Rusak</div><div id="handleRusak" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Handle Diperbaiki</div><div id="handleFix" class="card-value">0</div></div>
   </div>
+
+  <!-- ============ SECTION: OUTSTANDING ============ -->
+  <div class="section-title">Outstanding Task</div>
+
+  <div class="cards">
+    <div class="card"><div class="card-title">Cleaning Panel Outstanding</div><div id="panelOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Cleaning Fan Outstanding</div><div id="fanOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Cleaning Filter Outstanding</div><div id="filterOutstanding" class="card-value">0</div></div>
+
+    <div class="card"><div class="card-title">Tightening Outstanding</div><div id="tightOutstanding" class="card-value">0</div></div>
+
+    <div class="card"><div class="card-title">Ganti Lampu Outstanding</div><div id="lampuOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Ganti Handle Outstanding</div><div id="handleOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Ganti Fan Outstanding</div><div id="fanPartOutstanding" class="card-value">0</div></div>
+
+    <div class="card"><div class="card-title">Perbaikan Wiring Outstanding</div><div id="wiringOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Cek Alarm PLC Outstanding</div><div id="alarmOutstanding" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Cek Tegangan Outstanding</div><div id="voltOutstanding" class="card-value">0</div></div>
+  </div>
+
+  <!-- ============ SECTION: SUMMARY ============ -->
+  <div class="section-title">Summary</div>
+
+  <div class="cards">
+    <div class="card"><div class="card-title">APM Needed</div><div id="apm" class="card-value">0</div></div>
+    <div class="card"><div class="card-title">Total Data</div><div id="totalData" class="card-value">0</div></div>
+  </div>
+
 </div>
 
 <script>
 
-  // === URL API ===
-  const API_URL = "https://script.google.com/macros/s/AKfycbwgev8wlHf9AlfTzVcWUx8WitcKt5iCprvosKpCUkvBxi4p_fgIL1kxpbdn2wUEYsYb8Q/exec?action=summary";
+const API_URL = "https://script.google.com/macros/s/AKfycbyELz_MrWJKmXAGZp7lKiJLgkGyVmGoUpta8pPtHmCrX2ZbaETTHzgMSEop2u3vwCuTng/exec?action=summary";
 
-  async function loadSummary() {
-    const errBox = document.getElementById("errorBox");
-    errBox.style.display = "none";
+async function loadData() {
+  
+  const err = document.getElementById("errorBox");
+  err.style.display = "none";
 
-    try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error("HTTP " + res.status);
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
 
-      const data = await res.json();
+    document.getElementById("lampuRusak").textContent = data.lampu_rusak;
+    document.getElementById("lampuFix").textContent = data.lampu_diperbaiki;
 
-      // Isi card sesuai JSON
-      document.getElementById("fanRusak").textContent        = data.fan_rusak ?? 0;
-      document.getElementById("fanPerbaiki").textContent     = data.fan_diperbaiki ?? 0;
+    document.getElementById("fanRusak").textContent = data.fan_rusak;
+    document.getElementById("fanFix").textContent = data.fan_diperbaiki;
 
-      document.getElementById("lampuRusak").textContent      = data.lampu_rusak ?? 0;
-      document.getElementById("lampuPerbaiki").textContent   = data.lampu_diperbaiki ?? 0;
+    document.getElementById("handleRusak").textContent = data.handle_rusak;
+    document.getElementById("handleFix").textContent = data.handle_diperbaiki;
 
-      document.getElementById("handleRusak").textContent     = data.handle_rusak ?? 0;
-      document.getElementById("handlePerbaiki").textContent  = data.handle_diperbaiki ?? 0;
+    document.getElementById("panelOutstanding").textContent = data.cleaningPanelOutstanding;
+    document.getElementById("fanOutstanding").textContent = data.cleaningFanOutstanding;
+    document.getElementById("filterOutstanding").textContent = data.cleaningFilterOutstanding;
 
-      // Update waktu
-      document.getElementById("lastUpdate").textContent = new Date().toLocaleString();
+    document.getElementById("tightOutstanding").textContent = data.tighteningOutstanding;
 
-    } catch (err) {
-      errBox.textContent = "Gagal memuat data: " + err.message;
-      errBox.style.display = "block";
-    }
+    document.getElementById("lampuOutstanding").textContent = data.gantiLampuOutstanding;
+    document.getElementById("handleOutstanding").textContent = data.gantiHandleOutstanding;
+    document.getElementById("fanPartOutstanding").textContent = data.gantiFanOutstanding;
+
+    document.getElementById("wiringOutstanding").textContent = data.perbaikanWiringOutstanding;
+    document.getElementById("alarmOutstanding").textContent = data.cekAlarmPlcOutstanding;
+    document.getElementById("voltOutstanding").textContent = data.cekTeganganOutstanding;
+
+    document.getElementById("apm").textContent = data.tindakan_APM;
+    document.getElementById("totalData").textContent = data.totalBarisData;
+
+    document.getElementById("lastUpdate").textContent = new Date().toLocaleString("id-ID");
+
+  } catch (e) {
+    err.textContent = "⚠ Error mengambil data: " + e.message;
+    err.style.display = "block";
   }
+}
 
-  // auto load saat halaman dibuka
-  document.addEventListener("DOMContentLoaded", loadSummary);
+document.addEventListener("DOMContentLoaded", loadData);
+setInterval(loadData, 30000);
 
 </script>
+
 </body>
 </html>
