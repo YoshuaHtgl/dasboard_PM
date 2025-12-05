@@ -93,6 +93,13 @@
   background:#138a37;
 }
 
+.button-group {
+  display: flex;
+  gap: 10px; /* jarak antar tombol lebih rapat */
+  justify-content: center;
+  margin-top: 10px;
+}
+
 
   </style>
 </head>
@@ -103,17 +110,19 @@
   <h1>📊 Dashboard Monitoring PM</h1>
   <div class="subtitle">Data otomatis dari Google Apps Script</div>
 
-	<div class="top-bar">
+<div class="button-group">
+  <button class="open-dashboard" onclick="window.location.href='https://yoshuahtgl.github.io/form-ReportPM/'">
+    📌 Detail Report
+  </button>
 
-	  <!-- 🔥 Tombol baru yang kamu minta -->
-	  <button class="open-dashboard" onclick="window.location.href='https://yoshuahtgl.github.io/form-ReportPM/'">
-		📌 Detail Report
-	  </button>
+  <button class="open-dashboard" onclick="window.location.href='https://yoshuahtgl.github.io/CalenderPM/'">
+    📅 Jadwal PM
+  </button>
+</div>
 
-	  <span>⏱ Terakhir Update: <b id="lastUpdate">-</b></span>
-	  
-	  <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
-	</div>
+<div style="text-align:center; font-size:12px; margin-top:6px; color:#475569;">
+ ⏱ Terakhir Update: <b id="lastUpdate">-</b>
+</div>
 
   <div id="errorBox" class="error"></div>
 
